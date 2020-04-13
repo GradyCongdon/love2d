@@ -1,61 +1,35 @@
-require 'drawing'
 require 'position'
 
---class
 Bullet = {
-  radius = 1,
-  r = 1,
-  g = 0,
-  b = 0,
-  a = 0,  
+    name = 'Bullet',
+    radius = 1,
+    r = 1,
+    g = 0,
+    b = 0,
+    a = 0,  
 }
+Bullet.__index = Bullet
 
-
--- table
-
-bullets = {}
-
-function bullets_draw(bullets)
-  pushColor()
-  for i,bullet in ipairs(bullets) do
-    bullet_draw(bullet)
-  end
-  popColor()
-end
-
-function bullets_update(bullets, dt)
-  for i,bullet in ipairs(bullets) do
-    bullet_update(bullet, dt)
-  end
-end
-
-
-
--- object
-function bullet_create(entity)
-  b = {
+function Bullet:new(entity)
+  local this = {
     x = center(entity).x,
     y = center(entity).y,
     velocity = 250 + entity.velocity,
     angle = entity.angle,
+
   }
-  print(b.angle, entity.angle)
-
-  b.id = #bullets
-  table.insert(bullets, b)
+  setmetatable(this, Bullet)
+  return this
 end
 
-function bullet_update(b, dt)
-  radians = math.rad(b.angle)
-  b.x = b.x + (b.velocity * math.cos(radians)) * dt
-  b.y = b.y + (b.velocity * math.sin(radians)) * dt
+function Bullet:update(dt)
+  radians = math.rad(self.angle)
+  self.x = self.x + (self.velocity * math.cos(radians)) * dt
+  self.y = self.y + (self.velocity * math.sin(radians)) * dt
 end
 
-function bullet_draw(b)
-  love.graphics.setColor(Bullet.r, Bullet.g, Bullet.b)
-  love.graphics.circle('line', b.x, b.y, Bullet.radius)
+function Bullet:draw(b)
+  love.graphics.setColor(self.r, self.g, self.b)
+  love.graphics.circle('line', self.x, self.y, self.radius)
 end
 
-function bullet_destory(b)
-  table.remove(bullets, b.id)
-end

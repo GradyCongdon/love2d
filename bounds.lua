@@ -2,15 +2,23 @@ require 'position'
 -- bounds 
 
 function contained(entity, container)
-  if entity.x + entity.width > container.width then
+  if right(entity) > container.width then 
     return "right"
-  elseif entity.y + entity.height > container.height  then
+  elseif top(entity) > container.height  then
     return "bottom"
-  elseif entity.x < container.x  then
+  elseif left(entity) < container.x  then
     return "left"
-  elseif entity.y < container.y  then
+  elseif bottom(entity) < container.y  then
     return "top"
   end
+  return nil
+end
+
+function collision(a, b)
+  if right(a) > left(b) then return 'right' end
+  if left(a) < right(b) then return 'left' end
+  if bottom(a) > top(b) then return 'bottom' end
+  if top(a) < bottom(b) then return 'top' end
   return nil
 end
 

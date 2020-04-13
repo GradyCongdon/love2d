@@ -1,6 +1,11 @@
 require 'position'
 require 'bounds'
 require 'movement'
+require 'drawing'
+
+require 'Player'
+require 'Window'
+require 'Wall'
 
 require 'Bullet'
 
@@ -12,22 +17,16 @@ function love.load()
   love.window.setPosition(0,0,1)
 
   -- load 
-  window = {
-    x = 0,
-    y = 0,
-    width = love.graphics.getWidth(),
-    height = love.graphics.getHeight(),
+  window = Window:new()
+  windowCenter = center(window)
+  player = Player:new(windowCenter.x, windowCenter.y)
+  bullets = {}
+
+  walls = {
+    Wall:new(0,0,5, 100),
+    Wall:new(100,200, 5, 100),
   }
 
-  player = {
-    x = 100,
-    y = 10,
-    width = 30,
-    height = 10,
-
-    velocity = 500,
-    angle = 0,
-  }
 
 
   title = {
@@ -39,26 +38,79 @@ function love.load()
     text = "Hello, love",
   }
 
+  drawables = {
+    window,
+    player,
+    bullets,
+    walls,
+    title
+  }
+
+  updateables = {
+    window,
+    player,
+    bullets,
+    walls,
+    title
+  }
+
+  moveable = {
+    player,
+    bullets
+  }
+
+  collidable = {
+    walls,
+  }
+
+  containable = {
+    window
+  }
+
+
   log = {}
   count = {}
 
 end
 
+
+
 function love.update(dt)
+
   move(player, dt)
+
   collisionType = contained(player, window)
-  xx_delta('collisionType', collisionType)
   if collisionType then
     limitTo(player, window, collisionType)
   end
-  bullets_update(bullets, dt)
+
+  for i,bullet in ipairs(bullets) do
+    bullet:update(dt)
+  end
 end
 
--- actions
+function love.draw()
+  for i,x in ipairs(drawables) do
+    xType = type(x)
+    if #x == 0 and x.name then
+      pushColor()
+      x:draw()
+      popColor()
+    else 
+      pushColor()
+      for j,y in ipairs(x) do
+        y:draw()
+      end
+      popColor()
+    end
+  end
+  game_fps()
+end
 
 function love.keypressed(key)
   if key == 'space' then
-    bullet_create(player)
+    b = Bullet:new(player)
+    table.insert(bullets, b)
   end
    if key == "`" then
       debug.debug()
@@ -66,40 +118,9 @@ function love.keypressed(key)
 end
 
 
--- draw
-
-function love.draw()
-  window_draw(window)
-  text_draw(title)
-  player_draw(player)
-  bullets_draw(bullets)
-
-  xx_direction(player)
-  xx_direction(bullets[1])
-  game_fps()
-end
-
-function window_draw(window)
-  love.graphics.rectangle('line', window.x, window.y, window.width, window.height)
-end
-
 function text_draw(text)
   love.graphics.print(text.text, text.x, text.y)
 end
-
-function player_draw(player)
-  love.graphics.rectangle('fill', player.x, player.y, player.width, player.height)
-  r,g,b,a = love.graphics.getColor()
-  love.graphics.setColor(r,g,b,a)
-end
-
-
-
-
-
-
-
-
 
 -- xebug
 
@@ -142,4 +163,25 @@ end
 
 function game_fps()
   love.graphics.print("fps: "..tostring(love.timer.getFPS( )), 10, 10)
+end
+
+function uu()
+  for i,x in ipairs(updateable) do
+    if type(x) == 'table' then
+      for j,y in ipairs(x) do
+        y.update(dt)
+      end
+    else
+      x.update(dt)
+    end
+  end
+end
+
+function update_walls()
+  for i, wall in ipairs(walls) do
+    collisionType = collision(player, wall)
+    if collisionType then
+      limitTo(player, wall, collisionType)
+    end
+  end
 end
