@@ -1,7 +1,7 @@
 require 'position'
+require 'drawing'
 require 'bounds'
 require 'movement'
-require 'drawing'
 
 require 'Player'
 require 'Window'
@@ -23,8 +23,7 @@ function love.load()
   bullets = {}
 
   walls = {
-    Wall:new(0,0,5, 100),
-    Wall:new(100,200, 5, 100),
+    Wall:new(100,300,5, 100),
   }
 
 
@@ -54,17 +53,17 @@ function love.load()
     title
   }
 
-  moveable = {
+  moveables = {
     player,
-    bullets
+    --bullets
   }
 
-  collidable = {
-    walls,
-  }
-
-  containable = {
+  containables = {
     window
+  }
+
+  collidables = {
+    walls,
   }
 
 
@@ -76,16 +75,39 @@ end
 
 
 function love.update(dt)
-
-  move(player, dt)
-
-  collisionType = contained(player, window)
-  if collisionType then
-    limitTo(player, window, collisionType)
+  for i,x in ipairs(updateables) do
+    if #x == 0 and x.name then
+      x:update(dt)
+    else 
+      for j,y in ipairs(x) do
+        y:update(dt)
+      end
+    end
   end
 
-  for i,bullet in ipairs(bullets) do
-    bullet:update(dt)
+  for i,x in ipairs(moveables) do
+    if #x == 0 and x.name then
+      move(x, dt)
+      collide_each(collidables, x)
+    else 
+      for j,y in ipairs(x) do
+        move(y, dt)
+        collide_each(collidables, y)
+      end
+    end
+  end
+
+end
+
+function collide_each(targets, a)
+  for i,b in ipairs(targets) do
+    if #b == 0 and b.name then
+      collide(a, b)
+    else 
+      for j,c in ipairs(b) do
+        collide(a,c)
+      end
+    end
   end
 end
 
@@ -108,7 +130,7 @@ function love.draw()
 end
 
 function love.keypressed(key)
-  if key == 'space' then
+  if key == 'space' or key == 'l' then
     b = Bullet:new(player)
     table.insert(bullets, b)
   end

@@ -1,5 +1,10 @@
+
 Player = {
-  name = "Player"
+  name = "Player",
+  traits = {
+    moveable = true,
+    collidable = true,
+  }
 
 }
 Player.__index = Player
@@ -19,6 +24,7 @@ end
 
 function Player:update(dt)
 end
+
 
 function Player:draw()
   love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)

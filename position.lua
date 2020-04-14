@@ -5,6 +5,7 @@ function right(entity)
 end
 
 function setRight(entity, value)
+  print('right', value)
   entity.x = value - entity.width
   return entity.x
 end
@@ -25,6 +26,7 @@ function top(entity)
 end
 
 function setTop(entity, value)
+  print('top', value)
   entity.y = value
   return entity.y
 end
