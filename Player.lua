@@ -1,4 +1,3 @@
-
 Player = {
   name = "Player",
   traits = {
@@ -17,6 +16,8 @@ function Player:new(x, y)
 
     velocity = 500,
     angle = 0,
+
+    collision = {}
   }
   setmetatable(player, Player)
   return player
@@ -29,4 +30,23 @@ end
 function Player:draw()
   love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
   love.graphics.print('player', self.x, top(self) - 15)
+end
+
+
+require 'position'
+function debugCollision()
+  if self.collision then
+    if self.collision.right then
+      love.graphics.print('r', right(self) + 5, center(self).y)
+    end
+    if self.collision.right then
+      love.graphics.print('l', left(self) - 15, center(self).y)
+    end
+    if self.collision.right then
+      love.graphics.print('t', center(self).x , top(self) - 15)
+    end
+    if self.collision.right then
+      love.graphics.print('b', center(self).x , bottom(self) + 15)
+    end
+  end
 end

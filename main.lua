@@ -1,6 +1,7 @@
 require 'position'
 require 'drawing'
 require 'bounds'
+require 'collision'
 require 'movement'
 
 require 'Player'
@@ -55,7 +56,6 @@ function love.load()
 
   moveables = {
     player,
-    --bullets
   }
 
   containables = {
@@ -63,7 +63,15 @@ function love.load()
   }
 
   collidables = {
+    player,
+    bullets,
     walls,
+  }
+
+  c2 = {
+    {player, bullets},
+    {player, walls},
+    {bullets, walls},
   }
 
 
@@ -88,24 +96,61 @@ function love.update(dt)
   for i,x in ipairs(moveables) do
     if #x == 0 and x.name then
       move(x, dt)
-      collide_each(collidables, x)
     else 
       for j,y in ipairs(x) do
         move(y, dt)
-        collide_each(collidables, y)
       end
     end
   end
 
+  flatCollidables = flatten(collidables)
+  for i,x in ipairs(flatCollidables) do
+    if not x.destroy then
+      for j, y in ipairs(flatCollidables) do
+        if not y.destroy then
+          if i ~= j then 
+            print(i, x.name,x.destroy,' || ',j, y.name, y.destroy)
+            collide(x,y)
+            
+          end
+        end
+      end
+    end
+  end
+
+  print('===')
+
+
 end
 
-function collide_each(targets, a)
-  for i,b in ipairs(targets) do
-    if #b == 0 and b.name then
-      collide(a, b)
+function flatten(nested)
+  local flat = {}
+  for i=1, #nested, 1 do
+    x = nested[i]
+    if #x == 0 and x.name then
+      table.insert(flat, x)
+    else
+      for j=1, #x, 1 do
+        y = x[j]
+        if y then
+          table.insert(flat, y)
+        end
+      end
+    end
+  end
+  return flat
+end
+
+
+function collide_each(targets, x)
+  for i,y in ipairs(targets) do
+    if #y == 0 and y.name then
+      print(x.name, y.name)
+      collide(x, y)
     else 
-      for j,c in ipairs(b) do
-        collide(a,c)
+      for j,z in ipairs(y) do
+        print(x.name, z.name)
+        collide(x,z)
       end
     end
   end
